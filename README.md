@@ -2,6 +2,10 @@
 
 InvoiceIQ is a local invoice workspace for small businesses and freelancers. Upload an invoice, review the suggested values, and save a searchable record. Analytics group money by currency.
 
+## Live demo
+
+[Open InvoiceIQ](https://invoiceiq-demo-risheeth.vercel.app). Choose **Upload → Use sample invoice** to try the fictional Juniper Studio invoice. Review the extracted fields, save the record, then check Analytics or submit it again to see the duplicate warning. Saved records are isolated to your browser session. The backend may take a minute to wake on the free tier.
+
 ## Run locally on Windows
 
 Requires Python 3.12 and Node.js 24. Run the backend in one PowerShell window from the repository root.

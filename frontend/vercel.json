@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://invoiceiq-demo-api.onrender.com/api/:path*"
+      "destination": "https://invoiceiq-demo-api-oswn.onrender.com/api/:path*"
     },
     {
       "source": "/:path*",
