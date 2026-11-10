@@ -1,0 +1,14 @@
+.venv/
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+*.db-*
+.env*
+!.env.example
+tessdata/
+playwright-report/
+test-results/
+sample-data/juniper-invoice.pdf
