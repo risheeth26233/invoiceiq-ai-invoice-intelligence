@@ -37,6 +37,7 @@ def test_blank_labels_and_compact_values():
     assert fields["number"] == "JS-1042"
     assert fields["total"] == "129.60"
     assert fields["tax"] is None
+    assert parse_fields("Invoice number: #1042")["number"] == "#1042"
 
 
 def test_invoice_workflow(client):

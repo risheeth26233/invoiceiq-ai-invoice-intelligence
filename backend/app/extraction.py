@@ -47,8 +47,11 @@ def normalize_date(value):
 def parse_fields(source):
     fields = {}
     for key, label in LABELS.items():
-        match = re.search(rf"^[ \t]*{label}(?:[ \t]*[:#][ \t]*|[ \t]+)((?![:#])\S[^\r\n]*)", source, re.I | re.M)
-        fields[key] = match.group(1).strip() if match else None
+        match = re.search(
+            rf"^[ \t]*{label}(?:[ \t]*[:#][ \t]*(\S[^\r\n]*)|[ \t]+([^ \t\r\n:#][^\r\n]*))",
+            source, re.I | re.M,
+        )
+        fields[key] = (match.group(1) or match.group(2)).strip() if match else None
     for key in ("invoice_date", "due_date"):
         fields[key] = normalize_date(fields[key])
     total = fields["total"] or ""
