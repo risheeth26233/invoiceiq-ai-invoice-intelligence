@@ -1,0 +1,29 @@
+The problem
+Imagine running a small business where invoices arrive every day. Some are PDFs, some are images, and the details are never quite in the same place. You open each file, copy the vendor and total into a spreadsheet, and hope nothing slips through. One wrong amount throws off the numbers. One duplicate counts the same expense twice. That's the workflow I wanted to simplify. Meet Invoice IQ.
+
+The approach
+Invoice IQ turns a document into an editable draft. It reads PDF text or uses local OCR. You verify the details before saving.
+
+Start on the dashboard
+Here’s the live dashboard. A fresh browser session starts with an empty workspace.
+
+Extract the sample invoice
+I choose the fictional Juniper Studio invoice. Invoice IQ extracts the vendor, invoice number, dates, subtotal, tax, and grand total.
+
+Review before saving
+I check the source, try an edit, then restore the correct total before saving. Every extracted field is editable.
+
+Save and search
+The reviewed record is saved in PostgreSQL. I can find it by searching for J S one zero four two and open the saved invoice.
+
+See the financial summary
+Analytics shows the U S dollar total, recorded tax, and vendor breakdown. Each currency is tracked separately.
+
+Catch a duplicate
+I submit the sample again. Invoice IQ warns me before saving because the vendor and invoice number match.
+
+Advantages and limitations
+Invoice IQ reduces retyping and makes verified records easier to find. Accuracy still varies by layout, and line items are future work. The hosted demo uses a fictional sample. Local mode also supports scanned documents, and free hosting may take a moment to wake.
+
+Week 01 / 52
+Invoice IQ. Week one complete.

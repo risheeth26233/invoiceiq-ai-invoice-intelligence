@@ -1,0 +1,62 @@
+[
+  {
+    "key": "problem",
+    "duration": 30,
+    "title": "The problem",
+    "text": "Imagine running a small business where invoices arrive every day. Some are PDFs, some are images, and the details are never quite in the same place. You open each file, copy the vendor and total into a spreadsheet, and hope nothing slips through. One wrong amount throws off the numbers. One duplicate counts the same expense twice. That's the workflow I wanted to simplify. Meet Invoice IQ."
+  },
+  {
+    "key": "approach",
+    "duration": 13,
+    "title": "The approach",
+    "text": "Invoice IQ turns a document into an editable draft. It reads PDF text or uses local OCR. You verify the details before saving."
+  },
+  {
+    "key": "dashboard",
+    "duration": 7,
+    "title": "Start on the dashboard",
+    "text": "Here’s the live dashboard. A fresh browser session starts with an empty workspace."
+  },
+  {
+    "key": "upload",
+    "duration": 10,
+    "title": "Extract the sample invoice",
+    "text": "I choose the fictional Juniper Studio invoice. Invoice IQ extracts the vendor, invoice number, dates, subtotal, tax, and grand total."
+  },
+  {
+    "key": "review",
+    "duration": 8,
+    "title": "Review before saving",
+    "text": "I check the source, try an edit, then restore the correct total before saving. Every extracted field is editable."
+  },
+  {
+    "key": "save",
+    "duration": 10,
+    "title": "Save and search",
+    "text": "The reviewed record is saved in PostgreSQL. I can find it by searching for J S one zero four two and open the saved invoice."
+  },
+  {
+    "key": "analytics",
+    "duration": 8,
+    "title": "See the financial summary",
+    "text": "Analytics shows the U S dollar total, recorded tax, and vendor breakdown. Each currency is tracked separately."
+  },
+  {
+    "key": "duplicate",
+    "duration": 9,
+    "title": "Catch a duplicate",
+    "text": "I submit the sample again. Invoice IQ warns me before saving because the vendor and invoice number match."
+  },
+  {
+    "key": "limits",
+    "duration": 20,
+    "title": "Advantages and limitations",
+    "text": "Invoice IQ reduces retyping and makes verified records easier to find. Accuracy still varies by layout, and line items are future work. The hosted demo uses a fictional sample. Local mode also supports scanned documents, and free hosting may take a moment to wake."
+  },
+  {
+    "key": "close",
+    "duration": 5,
+    "title": "Week 01 / 52",
+    "text": "Invoice IQ. Week one complete."
+  }
+]

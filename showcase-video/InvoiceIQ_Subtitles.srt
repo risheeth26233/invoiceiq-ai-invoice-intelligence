@@ -1,0 +1,155 @@
+1
+00:00:00,441 --> 00:00:03,653
+Imagine running a small business where invoices arrive every
+
+2
+00:00:03,668 --> 00:00:06,218
+day. Some are PDFs,
+
+3
+00:00:06,233 --> 00:00:07,334
+some are images,
+
+4
+00:00:07,368 --> 00:00:09,356
+and the details are never quite in the same
+
+5
+00:00:09,371 --> 00:00:12,206
+place. You open each file,
+
+6
+00:00:12,240 --> 00:00:14,655
+copy the vendor and total into a spreadsheet,
+
+7
+00:00:14,677 --> 00:00:16,377
+and hope nothing slips through.
+
+8
+00:00:17,100 --> 00:00:19,502
+One wrong amount throws off the numbers.
+
+9
+00:00:20,212 --> 00:00:23,087
+One duplicate counts the same expense twice.
+
+10
+00:00:23,797 --> 00:00:28,661
+That's the workflow I wanted to simplify. Meet InvoiceIQ.
+
+11
+00:00:30,441 --> 00:00:34,068
+InvoiceIQ turns a document into an editable draft.
+
+12
+00:00:34,779 --> 00:00:38,214
+It reads PDF text or uses local OCR.
+
+13
+00:00:38,937 --> 00:00:41,454
+You verify the details before saving.
+
+14
+00:00:43,436 --> 00:00:45,019
+Here’s the live dashboard.
+
+15
+00:00:45,683 --> 00:00:48,921
+A fresh browser session starts with an empty workspace.
+
+16
+00:00:50,426 --> 00:00:52,918
+I choose the fictional Juniper Studio invoice.
+
+17
+00:00:53,501 --> 00:00:55,426
+InvoiceIQ extracts the vendor,
+
+18
+00:00:55,441 --> 00:00:56,800
+invoice number, dates,
+
+19
+00:00:56,815 --> 00:00:59,001
+subtotal, tax, and grand total.
+
+20
+00:01:00,426 --> 00:01:01,461
+I check the source,
+
+21
+00:01:01,476 --> 00:01:02,272
+try an edit,
+
+22
+00:01:02,287 --> 00:01:04,449
+then restore the correct total before saving.
+
+23
+00:01:05,026 --> 00:01:07,004
+Every extracted field is editable.
+
+24
+00:01:08,438 --> 00:01:11,096
+The reviewed record is saved in PostgreSQL.
+
+25
+00:01:11,790 --> 00:01:15,348
+I can find it by searching for JS-1042 and
+
+26
+00:01:15,363 --> 00:01:16,888
+open the saved invoice.
+
+27
+00:01:18,424 --> 00:01:20,421
+Analytics shows the US dollar total,
+
+28
+00:01:20,436 --> 00:01:22,554
+recorded tax, and vendor breakdown.
+
+29
+00:01:23,119 --> 00:01:25,003
+Each currency is tracked separately.
+
+30
+00:01:26,441 --> 00:01:28,205
+I submit the sample again.
+
+31
+00:01:28,917 --> 00:01:32,180
+InvoiceIQ warns me before saving because the vendor and
+
+32
+00:01:32,195 --> 00:01:33,678
+invoice number match.
+
+33
+00:01:35,436 --> 00:01:39,407
+InvoiceIQ reduces retyping and makes verified records easier to
+
+34
+00:01:39,422 --> 00:01:42,890
+find. Accuracy still varies by layout,
+
+35
+00:01:42,998 --> 00:01:44,883
+and line items are future work.
+
+36
+00:01:45,546 --> 00:01:48,084
+The hosted demo uses a fictional sample.
+
+37
+00:01:48,747 --> 00:01:51,369
+Local mode also supports scanned documents,
+
+38
+00:01:51,513 --> 00:01:53,906
+and free hosting may take a moment to wake.
+
+39
+00:01:55,441 --> 00:01:58,852
+InvoiceIQ. Week one complete.
