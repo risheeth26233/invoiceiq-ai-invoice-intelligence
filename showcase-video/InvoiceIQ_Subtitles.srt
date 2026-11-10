@@ -151,5 +151,5 @@ Local mode also supports scanned documents,
 and free hosting may take a moment to wake.
 
 39
-00:01:55,441 --> 00:01:58,852
-InvoiceIQ. Week one complete.
+00:01:55,431 --> 00:01:58,950
+Explore InvoiceIQ. Try the live demo.

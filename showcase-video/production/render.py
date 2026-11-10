@@ -193,20 +193,31 @@ def browser_shot(scene, target, marks):
     key, length = scene["key"], scene["duration"]
     start, end = marks[key]
     speed = length / (end - start)
-    # Browser footage stays unaltered inside the frame. The surrounding graphic supplies a label.
-    matte = Image.new("RGB", (1920, 1080), DARK)
-    d = ImageDraw.Draw(matte)
-    brand(d, 160, 23, True)
-    txt(d, 520, 33, scene["title"], 28, "white", True)
-    txt(d, 1455, 36, f"LIVE WORKFLOW  /  {LIVE.index(key) + 1:02} OF 06", 20, MINT, True)
-    card(d, (156, 78, 1764, 986), "#395a5c", radius=10)
-    plate = FRAMES / f"{key}.png"
-    matte.save(plate)
+    focus = {
+        "dashboard": (.035, .42, .32, 1.7),
+        "upload": (.055, .68, .50, 5.2),
+        "review": (.115, .76, .62, 2.7),
+        "save": (.040, .49, .41, 3.7),
+        "analytics": (.095, .56, .43, 2.1),
+        "duplicate": (.100, .75, .82, 5.0),
+    }
+    amount, x, y, cue = focus[key]
+    ease = "min(min(1,max(0,(on-20)/65)),max(0,(" + str(length * FPS) + "-on)/26))"
+    zoom = f"1+{amount}*pow(sin(PI/2*({ease})),2)"
+    plate = FRAMES / f"{key}-frame.png"
+    label = FRAMES / f"{key}-cue.png"
     ff("-loop", 1, "-framerate", FPS, "-i", plate, "-ss", round(start, 3),
        "-t", round(end - start, 3), "-i", P / "captures/live.webm",
+       "-loop", 1, "-framerate", FPS, "-i", label,
        "-filter_complex_threads", 2, "-filter_complex",
-       f"[1:v]setpts=(PTS-STARTPTS)*{speed:.7f},fps={FPS},scale=1600:900,"
-       "tpad=stop_mode=clone:stop_duration=0.5[site];[0:v][site]overlay=160:82,setsar=1,format=yuv420p[v]",
+       f"[1:v]setpts=(PTS-STARTPTS)*{speed:.7f},fps={FPS},"
+       f"tpad=stop_mode=clone:stop_duration=0.5,scale=2880:1620,"
+       f"zoompan=z='{zoom}':x='(iw-iw/zoom)*{x}':y='(ih-ih/zoom)*{y}':d=1:s=1600x900:fps={FPS}[site];"
+       f"[0:v][site]overlay=160:88[frame];"
+       f"[2:v]format=rgba,fade=t=in:st={cue}:d=0.32:alpha=1,"
+       f"fade=t=out:st={length-.52}:d=0.36:alpha=1[cue];"
+       f"[frame][cue]overlay=x='181-24*max(0,min(1,({cue}+.32-t)/.32))':y=875:"
+       f"enable='gte(t,{cue})',setsar=1,format=yuv420p[v]",
        "-map", "[v]", "-t", length, "-an", "-c:v", "libx264", "-threads", 4,
        "-preset", "veryfast", "-crf", 17, target)
 
@@ -311,10 +322,12 @@ def main():
     marks = json.loads((P / "captures/marks.json").read_text())
     cues, video_list, audio_list = [], [], []
     offset = 0
+    subprocess.run(["node", str(P / "motion-overlay.cjs")], cwd=P, check=True)
     for index, scene in enumerate(SCENES):
         key, length = scene["key"], scene["duration"]
-        video = SEGMENTS / f"{index:02}-{key}.mp4"
-        if not video.exists():
+        variant = "-motion" if key in LIVE else ""
+        video = SEGMENTS / f"{index:02}-{key}{variant}.mp4"
+        if not video.exists() or video.stat().st_size == 0:
             if key in LIVE:
                 browser_shot(scene, video, marks)
             else:

@@ -26,4 +26,4 @@ Advantages and limitations
 Invoice IQ reduces retyping and makes verified records easier to find. Accuracy still varies by layout, and line items are future work. The hosted demo uses a fictional sample. Local mode also supports scanned documents, and free hosting may take a moment to wake.
 
 Week 01 / 52
-Invoice IQ. Week one complete.
+Explore Invoice IQ. Try the live demo.
