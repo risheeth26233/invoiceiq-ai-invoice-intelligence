@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { api, extract, fields, json, type Extraction, type Fields, type Invoice } from './api'
+import { api, extract, fields, json, sampleInvoice, startSession, type Extraction, type Fields, type Invoice } from './api'
 
 import { useData } from './useData'
 
@@ -79,10 +79,33 @@ function Review({ initial, id, confidence, cancel }: {
 export function Upload() {
   const [preview, setPreview] = useState<{ url: string; file: File }>()
   const [result, setResult] = useState<Extraction>()
+  const [publicDemo, setPublicDemo] = useState<boolean>()
+  const [loadingSample, setLoadingSample] = useState(false)
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState('')
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview.url) }, [preview])
+
+  useEffect(() => {
+    let active = true
+    startSession().then(
+      mode => { if (active) setPublicDemo(mode.public_demo) },
+      issue => { if (active) setError(issue.message) },
+    )
+    return () => { active = false }
+  }, [])
+
+  async function useSample() {
+    setLoadingSample(true)
+    setError('')
+    try {
+      await select(await sampleInvoice())
+    } catch (issue) {
+      setError((issue as Error).message)
+    } finally {
+      setLoadingSample(false)
+    }
+  }
 
   async function select(file?: File) {
     if (!file || progress !== undefined) return
@@ -107,15 +130,25 @@ export function Upload() {
     <h1>Upload invoice</h1>
     <p className="muted intro">Turn a document into a record you can review, search, and track.</p>
     <div className="card drop" onDragOver={event => event.preventDefault()}
-      onDrop={event => { event.preventDefault(); void select(event.dataTransfer.files[0]) }}>
-      <h2>Drop an invoice here</h2>
-      <p className="muted">PDF, PNG or JPEG · up to 10 MiB</p>
+      onDrop={event => {
+        event.preventDefault()
+        if (publicDemo === false && !loadingSample) void select(event.dataTransfer.files[0])
+      }}>
+      <h2>Try a fictional invoice</h2>
+      <p className="muted">Load the Juniper Studio sample, review the extracted fields, then save it to your workspace.</p>
+      <button type="button" onClick={useSample} disabled={loadingSample || progress !== undefined}>
+        {loadingSample && progress === undefined ? 'Loading sample…' : 'Use sample invoice'}
+      </button>
+      {publicDemo && <p className="muted">The public demo accepts this sample only. Use fictional details when editing. Your browser workspace expires after 24 hours.</p>}
+      {publicDemo === false && <>
+      <p className="muted">Or drop a PDF, PNG or JPEG here · up to 10 MiB</p>
       <input aria-label="Choose an invoice" type="file" accept=".pdf,.png,.jpg,.jpeg"
-        disabled={progress !== undefined} onChange={event => {
+        disabled={loadingSample || progress !== undefined} onChange={event => {
           const file = event.target.files?.[0]
           event.target.value = ''
           void select(file)
         }} />
+      </>}
       {progress !== undefined && <p role="status">
         {progress === 100 ? 'Extracting invoice fields…' : 'Uploading…'}
         {' '}<progress aria-label="Upload progress" max={100} value={progress} />

@@ -26,7 +26,7 @@ Open [InvoiceIQ](http://127.0.0.1:5173). FastAPI exposes [interactive API docume
 
 ## Try the local demo
 
-From the repository root, run `backend/.venv/Scripts/python.exe sample-data/make_invoice.py`. Upload the generated `sample-data/juniper-invoice.pdf`. Confirm the extracted invoice number is **JS-1042** and the total is **USD 129.60**, then save. Search for JS-1042 in Invoices, check the USD total in Analytics, and upload the same PDF again to see the duplicate warning.
+Open **Upload** and select **Use sample invoice**, or drop the bundled fictional PDF from `sample-data/juniper-invoice.pdf` in local mode. Confirm the extracted invoice number is **JS-1042** and the total is **USD 129.60**, then save. Search for JS-1042 in Invoices, check the USD total in Analytics, and upload the same PDF again to see the duplicate warning.
 
 ## Architecture
 
@@ -48,7 +48,7 @@ See [Testing](docs/TESTING.md) for backend, migration, and browser checks.
 
 ## Security and scope
 
-The current application is intended for local use. Source documents are processed in memory, and only confirmed invoice fields are persisted. The API has no user accounts or tenant isolation. Public hosting requires authentication, authorization, rate limits, and document processing isolation. Use fictional invoices for demos.
+Local mode accepts PDF, PNG and JPEG documents and processes them in memory. The optional public demo uses the bundled fictional PDF only. Signed, 24-hour browser sessions isolate saved records, CSV exports and analytics. API traffic is rate-limited, and the deployment configuration uses a same-origin HTTPS proxy and verified TLS to PostgreSQL. Public demo mode is for fictional data. See the [deployment guide](docs/DEPLOYMENT.md) for provider setup and the pre-release smoke test.
 
 ## License
 

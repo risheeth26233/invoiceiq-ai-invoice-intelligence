@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: invoiceiq-demo-api
+    runtime: docker
+    plan: free
+    autoDeployTrigger: "off"
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: INVOICEIQ_PUBLIC_DEMO
+        value: "1"
+      - key: INVOICEIQ_DEMO_ORIGIN
+        sync: false
+      - key: INVOICEIQ_SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false

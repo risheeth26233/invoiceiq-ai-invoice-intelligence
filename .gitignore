@@ -11,4 +11,5 @@ __pycache__/
 tessdata/
 playwright-report/
 test-results/
-sample-data/juniper-invoice.pdf
+
+.test-tls/

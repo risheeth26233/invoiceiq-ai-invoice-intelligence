@@ -17,20 +17,48 @@ export type Analytics = {
   }>
 }
 
+async function readError(response: Response) {
+  const error = await response.json().catch(() => ({}))
+  return new Error(typeof error.detail === 'string' ? error.detail : 'The request failed. Try again.')
+}
+
+let session: Promise<{ public_demo: boolean }> | undefined
+
+export function startSession() {
+  session ??= fetch('/api/session', { method: 'POST' }).then(async response => {
+    if (!response.ok) throw await readError(response)
+    return response.json()
+  }).catch(error => {
+    session = undefined
+    throw error
+  })
+  return session
+}
+
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch('/api' + path, init)
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}))
-    throw new Error(typeof error.detail === 'string' ? error.detail : 'The request failed. Check the fields and try again.')
+  const current = startSession()
+  await current
+  let response = await fetch('/api' + path, init)
+  if (response.status === 401) {
+    if (session === current) session = undefined
+    await startSession()
+    response = await fetch('/api' + path, init)
   }
+  if (!response.ok) throw await readError(response)
   return response.status === 204 ? undefined as T : response.json()
+}
+
+export async function sampleInvoice() {
+  const response = await fetch('/api/sample')
+  if (!response.ok) throw await readError(response)
+  return new File([await response.blob()], 'juniper-invoice.pdf', { type: 'application/pdf' })
 }
 
 export function json(method: string, values: Fields): RequestInit {
   return { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) }
 }
 
-export function extract(file: File, progress: (value: number) => void): Promise<Extraction> {
+async function sendUpload(file: File, progress: (value: number) => void): Promise<Extraction | undefined> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
     request.open('POST', '/api/extract')
@@ -41,7 +69,8 @@ export function extract(file: File, progress: (value: number) => void): Promise<
     }
     request.upload.onload = () => progress(100)
     request.onload = () => {
-      if (request.status === 200 && request.response) resolve(request.response)
+      if (request.status === 401) resolve(undefined)
+      else if (request.status === 200 && request.response) resolve(request.response)
       else reject(new Error(request.response?.detail || 'The document could not be processed.'))
     }
     request.onerror = () => reject(new Error('Could not connect to InvoiceIQ.'))
@@ -49,4 +78,16 @@ export function extract(file: File, progress: (value: number) => void): Promise<
     request.setRequestHeader('Content-Type', 'application/octet-stream')
     request.send(file)
   })
+}
+
+export async function extract(file: File, progress: (value: number) => void) {
+  const current = startSession()
+  await current
+  const result = await sendUpload(file, progress)
+  if (result) return result
+  if (session === current) session = undefined
+  await startSession()
+  const retry = await sendUpload(file, progress)
+  if (!retry) throw new Error('The demo session could not start. Check that cookies are enabled.')
+  return retry
 }

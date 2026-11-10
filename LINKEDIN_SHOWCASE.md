@@ -6,7 +6,7 @@ Manual invoice entry is repetitive and prone to transcription errors. InvoiceIQ 
 
 ## Demo script (45–60 seconds)
 
-Follow the [local demo setup](README.md#try-the-local-demo) and use the generated Juniper Studio PDF. The repository includes the [review screenshot](screenshots/invoice-review.png) and [dashboard screenshot](screenshots/dashboard.png).
+Follow the [local demo setup](README.md#try-the-local-demo) and select **Use sample invoice** to load the bundled Juniper Studio PDF. The repository includes the [review screenshot](screenshots/invoice-review.png) and [dashboard screenshot](screenshots/dashboard.png).
 
 - **0–10s** Open the dashboard and explain the manual data-entry problem.
 - **10–25s** Upload the fictional Juniper Studio invoice. Show the extracted values and correct the total.

@@ -3,6 +3,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import Date, DateTime, Numeric, String, create_engine, func
+from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 
@@ -14,6 +15,7 @@ class Invoice(Base):
     __tablename__ = "invoices"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    owner: Mapped[str] = mapped_column(String(32), server_default="local", index=True)
     vendor: Mapped[str] = mapped_column(String(160), index=True)
     number: Mapped[str] = mapped_column(String(80))
     vendor_key: Mapped[str] = mapped_column(String(320), index=True)
@@ -27,5 +29,10 @@ class Invoice(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
-engine = create_engine(os.environ.get("DATABASE_URL") or "sqlite:///./invoiceiq.db")
+url = os.environ.get("DATABASE_URL") or "sqlite:///./invoiceiq.db"
+options = {"pool_size": 3, "max_overflow": 2} if url.startswith("postgresql") else {}
+try:
+    engine = create_engine(url, pool_pre_ping=True, hide_parameters=True, **options)
+except (ArgumentError, ValueError):
+    raise RuntimeError("DATABASE_URL is not a valid SQLAlchemy database URL.") from None
 Session = sessionmaker(engine, expire_on_commit=False)

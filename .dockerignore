@@ -1,0 +1,13 @@
+*
+!backend/
+backend/*
+!backend/app/
+!backend/migrations/
+!backend/alembic.ini
+!backend/requirements.txt
+!backend/Dockerfile
+!sample-data/
+sample-data/*
+!sample-data/juniper-invoice.pdf
+**/__pycache__
+**/*.pyc

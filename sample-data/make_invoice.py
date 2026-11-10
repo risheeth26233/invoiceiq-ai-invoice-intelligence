@@ -17,7 +17,7 @@ def create_invoice():
             "Tax: 9.60",
             "Grand total: USD 129.60",
         )), fontsize=14)
-        return document.tobytes()
+        return document.tobytes(no_new_id=True)
 
 
 if __name__ == "__main__":

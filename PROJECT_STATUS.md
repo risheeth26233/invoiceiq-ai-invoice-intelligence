@@ -1,11 +1,10 @@
 # InvoiceIQ status
 
-The local MVP is ready for the weekly portfolio showcase. It covers invoice upload, extraction, review, persistence, search, editing, duplicate warnings, deletion, CSV export, and currency-separated analytics.
+The local MVP and the fictional public demo mode support upload, extraction, review, save, search, currency-separated analytics, duplicate detection, editing, deletion, and CSV export.
 
-- **Backend:** Eight local tests passed, including PNG, JPEG, and scanned PDF OCR, invalid uploads, and exact decimal totals across separate currencies.
-- **Frontend:** Type checking and the production build passed. The Playwright workflow passed in Edge at a 390 px viewport, including an edit that refreshes the invoice heading.
-- **Database:** The local SQLite migration and schema check passed. GitHub Actions runs the browser workflow against a disposable PostgreSQL 16 service.
-- **Showcase:** The README contains the fictional invoice demo and screenshots. The LinkedIn draft includes a 45–60 second walkthrough.
-- **Deployment:** Local only. Public hosting requires authentication, tenant isolation, rate limits, and isolation of untrusted document processing.
+- **Public demo:** Signed 24-hour browser sessions scope every invoice operation. The public API accepts only the bundled fictional PDF, checks the frontend origin, and limits request size, duration, and rate.
+- **Local regression:** Backend tests, the production frontend build, and both local and HTTPS browser workflows passed. CI exercises PostgreSQL migrations, API session isolation and both browser workflows, and builds and smoke-tests the Render image.
+- **Deployment:** Vercel and Render configurations are prepared. The demo has not been published. Live provider configuration and an end-to-end hosted smoke test require explicit deployment authorization.
+- **Showcase:** The README and LinkedIn script include the fictional Juniper Studio workflow.
 
-Line-item extraction, advanced insights, and broader invoice-layout coverage are deferred.
+Real invoice uploads remain a local feature. Hosted use with real financial records requires a separate production design.

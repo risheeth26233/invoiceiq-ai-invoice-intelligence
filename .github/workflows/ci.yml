@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+      INVOICEIQ_TEST_DATABASE_URL: postgresql+psycopg://invoiceiq:invoiceiq_test@127.0.0.1:5432/invoiceiq_test
     services:
       postgres:
         image: postgres:16
@@ -34,16 +35,41 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr-eng
-      - working-directory: backend
+      - name: Test API and migrations
+        working-directory: backend
         run: |
           python -m pip install -r requirements.txt
           python -m alembic upgrade head
+          python -m alembic check
+          DATABASE_URL="$INVOICEIQ_TEST_DATABASE_URL" python -m alembic upgrade head
+          DATABASE_URL="$INVOICEIQ_TEST_DATABASE_URL" python -m alembic check
           python -m pytest -q
-      - working-directory: frontend
-        env:
-          INVOICEIQ_BROWSER_DATABASE_URL: postgresql+psycopg://invoiceiq:invoiceiq_test@127.0.0.1:5432/invoiceiq_test
+      - name: Build frontend and test browser workflows
+        working-directory: frontend
         run: |
           npm ci
           npm run build
           npx playwright install --with-deps chromium
+          export INVOICEIQ_BROWSER_DATABASE_URL="$INVOICEIQ_TEST_DATABASE_URL"
           npx playwright test
+          export INVOICEIQ_TEST_TLS_DIR="$RUNNER_TEMP/invoiceiq-tls"
+          mkdir -p "$INVOICEIQ_TEST_TLS_DIR"
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj '/CN=127.0.0.1' \
+            -addext 'subjectAltName=IP:127.0.0.1' -keyout "$INVOICEIQ_TEST_TLS_DIR/key.pem" -out "$INVOICEIQ_TEST_TLS_DIR/cert.pem"
+          npx playwright test
+      - name: Build and smoke-test Render image
+        run: |
+          docker build -f backend/Dockerfile -t invoiceiq-ci .
+          docker run --rm -i --entrypoint python -e INVOICEIQ_PUBLIC_DEMO=0 invoiceiq-ci - <<'PY'
+          import os
+          from pathlib import Path
+          import pymupdf
+          from app.main import SAMPLE
+          from app.extraction import read_document
+
+          assert os.getuid() != 0
+          assert Path(os.environ["TESSDATA_PREFIX"], "eng.traineddata").is_file()
+          with pymupdf.open(stream=SAMPLE, filetype="pdf") as document:
+              image = document[0].get_pixmap(dpi=180).tobytes("png")
+          assert read_document(image)["fields"]["number"] == "JS-1042"
+          PY

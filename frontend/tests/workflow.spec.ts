@@ -1,21 +1,26 @@
-import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { expect, test } from '@playwright/test'
 
 test('review, save, search, warn, edit, and delete', async ({ page }) => {
+  const publicDemo = Boolean(process.env.INVOICEIQ_TEST_TLS_DIR)
   const sample = resolve('../sample-data/juniper-invoice.pdf')
-  const python = process.env.INVOICEIQ_PYTHON || 'python'
-  execFileSync(python, [resolve('../sample-data/make_invoice.py')])
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   await expect(page.getByText('Your workspace is ready')).toBeVisible()
 
-  const upload = async () => {
+  const upload = async (useSample = false) => {
     await page.getByRole('link', { name: 'Upload', exact: true }).click()
-    await page.getByLabel('Choose an invoice').setInputFiles(sample)
+    if (publicDemo || useSample) await page.getByRole('button', { name: 'Use sample invoice' }).click()
+    else await page.getByLabel('Choose an invoice').setInputFiles(sample)
     await expect(page.getByLabel('Vendor', { exact: true })).toHaveValue('Juniper Studio')
   }
-  await upload()
+  await upload(true)
+  if (publicDemo) {
+    await expect(page.getByLabel('Choose an invoice')).toHaveCount(0)
+    expect(await page.context().cookies()).toContainEqual(expect.objectContaining({
+      name: '__Host-invoiceiq', httpOnly: true, secure: true, sameSite: 'Strict',
+    }))
+  }
   if (process.env.INVOICEIQ_CAPTURE === '1') {
     await page.setViewportSize({ width: 1440, height: 960 })
     await page.screenshot({ path: '../screenshots/invoice-review.png', fullPage: true })
