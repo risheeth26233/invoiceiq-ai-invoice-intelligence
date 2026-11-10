@@ -1,20 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { api, type Analytics, type Page } from './api'
+import { BrowserRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router'
+import type { Analytics, Page } from './api'
+import { useData } from './useData'
 import { Details, Upload } from './Review'
 import './style.css'
-
-function useData<T>(path: string) {
-  const [state, setState] = useState<{ data?: T; error?: string; path?: string }>({})
-  useEffect(() => {
-    let active = true
-    api<T>(path).then(data => { if (active) setState({ data, path }) },
-      error => { if (active) setState({ error: error.message, path }) })
-    return () => { active = false }
-  }, [path])
-  return state.path === path ? state : {}
-}
 
 function InvoiceTable({ page }: { page: Page }) {
   if (!page.items.length) return <p className="muted">No invoices to display.</p>
@@ -122,7 +112,7 @@ function App() {
       {location.state?.saved && <p role="status" className="success">Invoice saved.</p>}
       <Routes>
         <Route path="/" element={<Dashboard />} /><Route path="/upload" element={<Upload />} />
-        <Route path="/invoices" element={<Invoices />} /><Route path="/invoices/:id" element={<Details />} />
+        <Route path="/invoices" element={<Invoices />} /><Route path="/invoices/:id" element={<Details key={location.key} />} />
         <Route path="/analytics" element={<Dashboard expanded />} />
         <Route path="*" element={<><h1>Page not found</h1><Link to="/">Return to overview</Link></>} />
       </Routes>

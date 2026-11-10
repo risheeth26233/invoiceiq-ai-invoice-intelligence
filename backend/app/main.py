@@ -41,6 +41,13 @@ def normalize(value):
     return "".join(character for character in value.casefold() if character.isalnum())
 
 
+def invoice_values(data: InvoiceInput):
+    return data.model_dump() | {
+        "vendor_key": normalize(data.vendor),
+        "number_key": normalize(data.number),
+    }
+
+
 def invoice_or_404(session, invoice_id):
     record = session.get(Invoice, invoice_id)
     if record is None:
@@ -63,7 +70,7 @@ def duplicates(data: InvoiceInput, exclude: int | None = None, session: DBSessio
 
 @app.post("/api/invoices", response_model=InvoiceRecord, status_code=201)
 def create(data: InvoiceInput, session: DBSession = Depends(database)):
-    record = Invoice(**data.model_dump(), vendor_key=normalize(data.vendor), number_key=normalize(data.number))
+    record = Invoice(**invoice_values(data))
     session.add(record)
     session.commit()
     return record
@@ -110,10 +117,8 @@ def detail(invoice_id: int, session: DBSession = Depends(database)):
 @app.put("/api/invoices/{invoice_id}", response_model=InvoiceRecord)
 def update(invoice_id: int, data: InvoiceInput, session: DBSession = Depends(database)):
     record = invoice_or_404(session, invoice_id)
-    for key, value in data.model_dump().items():
+    for key, value in invoice_values(data).items():
         setattr(record, key, value)
-    record.vendor_key = normalize(data.vendor)
-    record.number_key = normalize(data.number)
     session.commit()
     return record
 

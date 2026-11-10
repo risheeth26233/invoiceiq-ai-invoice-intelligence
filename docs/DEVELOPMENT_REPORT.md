@@ -13,3 +13,7 @@ InvoiceIQ uses React and TypeScript for the review interface, FastAPI for the lo
 ## Remaining work
 
 Check extraction across diverse layouts, implement line-item capture and insights, prepare screenshots and cloud configuration, and add authentication and document processing isolation before public hosting.
+
+## Portfolio release
+
+Dashboard and detail views share one data-loading hook. Create and update share the same invoice field mapping, the frontend uses React Router directly, and image OCR opens the converted PDF without copying its pages. Regression checks cover blank labels, compact values, normalized duplicate keys after edits, exact currency totals, and vendor heading updates. The local workflow uses SQLite, and the GitHub Actions browser workflow is configured to use a disposable PostgreSQL 16 database.

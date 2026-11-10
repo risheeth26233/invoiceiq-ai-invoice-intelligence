@@ -12,13 +12,13 @@ MAX_BYTES = 10 * 1024 * 1024
 MAX_PAGES = 10
 MAX_PIXELS = 16_000_000
 LABELS = {
-    "number": r"(?:Invoice\s*(?:number|no\.?|#)|Invoice\s*:)",
+    "number": r"(?:Invoice[ \t]*(?:number|no\.?|#)|Invoice(?=[ \t]*:))",
     "vendor": r"(?:Vendor|Supplier|From)",
-    "invoice_date": r"(?:Invoice\s+date|Issue\s+date|Date)",
-    "due_date": r"Due\s+date",
-    "subtotal": r"Sub\s*total",
-    "tax": r"(?:Tax(?:\s+amount)?|VAT|GST)",
-    "total": r"(?:Grand\s+total|Total(?:\s+(?:due|amount))?|Amount\s+due)",
+    "invoice_date": r"(?:Invoice[ \t]+date|Issue[ \t]+date|Date)",
+    "due_date": r"Due[ \t]+date",
+    "subtotal": r"Sub[ \t]*total",
+    "tax": r"(?:Tax(?:[ \t]+amount)?|VAT|GST)",
+    "total": r"(?:Grand[ \t]+total|Total(?:[ \t]+(?:due|amount))?|Amount[ \t]+due)",
     "currency": r"Currency",
 }
 
@@ -47,9 +47,7 @@ def normalize_date(value):
 def parse_fields(source):
     fields = {}
     for key, label in LABELS.items():
-        match = re.search(rf"^[ \t]*{label}[ \t]*[:#]?[ \t]+([^\r\n]+)", source, re.I | re.M)
-        if not match:
-            match = re.search(rf"^[ \t]*{label}[ \t]*:[ \t]*([^\r\n]+)", source, re.I | re.M)
+        match = re.search(rf"^[ \t]*{label}(?:[ \t]*[:#][ \t]*|[ \t]+)((?![:#])\S[^\r\n]*)", source, re.I | re.M)
         fields[key] = match.group(1).strip() if match else None
     for key in ("invoice_date", "due_date"):
         fields[key] = normalize_date(fields[key])
@@ -82,33 +80,30 @@ def read_document(data):
                 if image.width * image.height > MAX_PIXELS:
                     raise ValueError("Image exceeds the pixel limit.")
                 image.verify()
-        with pymupdf.open(stream=data, filetype=kind) as original:
-            if original.needs_pass or not 1 <= len(original) <= MAX_PAGES:
+            with pymupdf.open(stream=data, filetype=kind) as image_document:
+                data = image_document.convert_to_pdf()
+        with pymupdf.open(stream=data, filetype="pdf") as document:
+            if document.needs_pass or not 1 <= len(document) <= MAX_PAGES:
                 raise ValueError("Use an unlocked invoice with 1 to 10 pages.")
-            with pymupdf.open() as converted:
-                if kind != "pdf":
-                    with pymupdf.open(stream=original.convert_to_pdf(), filetype="pdf") as image_pdf:
-                        converted.insert_pdf(image_pdf)
-                document = converted if kind != "pdf" else original
-                chunks = []
-                warnings = []
-                used_ocr = False
-                for page in document:
-                    content = page.get_text(sort=True).strip()
-                    if not content:
-                        used_ocr = True
-                        dpi = 150
-                        pixels = page.rect.width * page.rect.height * (dpi / 72) ** 2
-                        if pixels > MAX_PIXELS:
-                            warnings.append("A page exceeded the OCR pixel limit.")
-                        else:
-                            try:
-                                ocr = page.get_textpage_ocr(dpi=dpi, full=True, tessdata=os.environ.get("TESSDATA_PREFIX"))
-                                content = page.get_text(textpage=ocr, sort=True).strip()
-                            except (RuntimeError, ValueError):
-                                logging.getLogger(__name__).info("OCR failed for a page")
-                                warnings.append("OCR could not read a page. Enter missing values manually.")
-                    chunks.append(content)
+            chunks = []
+            warnings = []
+            used_ocr = False
+            for page in document:
+                content = page.get_text(sort=True).strip()
+                if not content:
+                    used_ocr = True
+                    dpi = 150
+                    pixels = page.rect.width * page.rect.height * (dpi / 72) ** 2
+                    if pixels > MAX_PIXELS:
+                        warnings.append("A page exceeded the OCR pixel limit.")
+                    else:
+                        try:
+                            ocr = page.get_textpage_ocr(dpi=dpi, full=True, tessdata=os.environ.get("TESSDATA_PREFIX"))
+                            content = page.get_text(textpage=ocr, sort=True).strip()
+                        except (RuntimeError, ValueError):
+                            logging.getLogger(__name__).info("OCR failed for a page")
+                            warnings.append("OCR could not read a page. Enter missing values manually.")
+                chunks.append(content)
     except (pymupdf.FileDataError, RuntimeError, OSError, Image.DecompressionBombError) as exc:
         raise ValueError("The document could not be opened.") from exc
     fields = parse_fields("\n".join(chunks))

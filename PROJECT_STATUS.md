@@ -1,10 +1,11 @@
 # InvoiceIQ status
 
-The first local MVP covers upload, extraction, manual review, persistence, search, editing, duplicate warnings, deletion, CSV export, and currency-separated analytics.
+The local MVP is ready for the weekly portfolio showcase. It covers invoice upload, extraction, review, persistence, search, editing, duplicate warnings, deletion, CSV export, and currency-separated analytics.
 
-- **Backend:** Seven tests passed, including PNG, JPEG, and scanned PDF OCR and invalid upload handling.
-- **Frontend:** Type checking and the production build passed. One Playwright workflow passed in Edge at a 390 px viewport.
-- **Database:** SQLite migration and schema check passed. PostgreSQL SQL generation passed and a live database test is pending.
-- **Deployment:** Local development only. Public hosting requires authentication, tenant isolation, rate limits, and isolation of untrusted document processing.
+- **Backend:** Eight local tests passed, including PNG, JPEG, and scanned PDF OCR, invalid uploads, and exact decimal totals across separate currencies.
+- **Frontend:** Type checking and the production build passed. The Playwright workflow passed in Edge at a 390 px viewport, including an edit that refreshes the invoice heading.
+- **Database:** The local SQLite migration and schema check passed. GitHub Actions runs the browser workflow against a disposable PostgreSQL 16 service.
+- **Showcase:** The README contains the fictional invoice demo and screenshots. The LinkedIn draft includes a 45–60 second walkthrough.
+- **Deployment:** Local only. Public hosting requires authentication, tenant isolation, rate limits, and isolation of untrusted document processing.
 
-Portfolio work still includes sample layout coverage, line items, insights and hosting configuration.
+Line-item extraction, advanced insights, and broader invoice-layout coverage are deferred.

@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from app.extraction import parse_fields
 from app.main import app, database
 from app.models import Base
 
@@ -30,6 +31,14 @@ def client(tmp_path):
         engine.dispose()
 
 
+def test_blank_labels_and_compact_values():
+    fields = parse_fields("Vendor :\nInvoice:JS-1042\nGrand\nTotal:USD 129.60\nTax:")
+    assert fields["vendor"] is None
+    assert fields["number"] == "JS-1042"
+    assert fields["total"] == "129.60"
+    assert fields["tax"] is None
+
+
 def test_invoice_workflow(client):
     assert client.get("/api/health").json() == {"status": "ok"}
     response = client.post("/api/extract", content=sample["create_invoice"]())
@@ -51,7 +60,16 @@ def test_invoice_workflow(client):
     response = client.put(f"/api/invoices/{invoice_id}", json={**data, "vendor": "=Example", "currency": "eur"})
     assert response.json()["currency"] == "EUR"
     assert "'=Example" in client.get("/api/invoices.csv").text
-    assert client.get("/api/analytics").json()["currencies"]["EUR"]["total"] == "129.60"
+    matches = client.post("/api/invoices/duplicates", json={**data, "vendor": "example"}).json()
+    assert matches == [{"id": invoice_id, "reason": "Same vendor and invoice number"}]
+    usd = client.post("/api/invoices", json={**data, "total": "0.10"}).json()
+    second_usd = client.post("/api/invoices", json={**data, "total": "0.20"}).json()
+    analytics = client.get("/api/analytics").json()
+    assert analytics["count"] == 3
+    assert analytics["currencies"]["EUR"]["total"] == "129.60"
+    assert analytics["currencies"]["USD"]["total"] == "0.30"
+    for record in (usd, second_usd):
+        assert client.delete(f"/api/invoices/{record['id']}").status_code == 204
     assert client.delete(f"/api/invoices/{invoice_id}").status_code == 204
     assert client.get(f"/api/invoices/{invoice_id}").status_code == 404
     assert client.get("/api/analytics").json() == {"count": 0, "currencies": {}}

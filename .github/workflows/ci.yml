@@ -7,6 +7,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: invoiceiq
+          POSTGRES_PASSWORD: invoiceiq_test
+          POSTGRES_DB: invoiceiq_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U invoiceiq -d invoiceiq_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,6 +40,8 @@ jobs:
           python -m alembic upgrade head
           python -m pytest -q
       - working-directory: frontend
+        env:
+          INVOICEIQ_BROWSER_DATABASE_URL: postgresql+psycopg://invoiceiq:invoiceiq_test@127.0.0.1:5432/invoiceiq_test
         run: |
           npm ci
           npm run build

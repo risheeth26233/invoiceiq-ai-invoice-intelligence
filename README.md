@@ -22,7 +22,11 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Open [InvoiceIQ](http://127.0.0.1:5173). FastAPI exposes [interactive API documentation](http://127.0.0.1:8000/docs). To generate a fictional invoice, run `backend/.venv/Scripts/python.exe sample-data/make_invoice.py` from the repository root.
+Open [InvoiceIQ](http://127.0.0.1:5173). FastAPI exposes [interactive API documentation](http://127.0.0.1:8000/docs).
+
+## Try the local demo
+
+From the repository root, run `backend/.venv/Scripts/python.exe sample-data/make_invoice.py`. Upload the generated `sample-data/juniper-invoice.pdf`. Confirm the extracted invoice number is **JS-1042** and the total is **USD 129.60**, then save. Search for JS-1042 in Invoices, check the USD total in Analytics, and upload the same PDF again to see the duplicate warning.
 
 ## Architecture
 
@@ -40,7 +44,7 @@ Set `DATABASE_URL` before running Alembic and starting the API to use PostgreSQL
 
 ## Checks
 
-From `backend`, run `.venv/Scripts/python.exe -m pytest -q`. From `frontend`, run `npm.cmd run build`.
+See [Testing](docs/TESTING.md) for backend, migration, and browser checks.
 
 ## Security and scope
 
@@ -56,4 +60,4 @@ InvoiceIQ uses the GNU Affero General Public License v3. See [LICENSE](LICENSE).
 
 ![Invoice review with extracted fields](screenshots/invoice-review.png)
 
-See the [API reference](docs/API.md), [testing instructions](docs/TESTING.md), [deployment preparation](docs/DEPLOYMENT.md), and [LinkedIn showcase draft](LINKEDIN_SHOWCASE.md).
+See the [API reference](docs/API.md), [deployment preparation](docs/DEPLOYMENT.md), and [LinkedIn showcase draft](LINKEDIN_SHOWCASE.md).

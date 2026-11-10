@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router'
 import { api, extract, fields, json, type Extraction, type Fields, type Invoice } from './api'
+
+import { useData } from './useData'
 
 function Review({ initial, id, confidence, cancel }: {
   initial: Fields; id?: number; confidence?: Extraction['confidence']; cancel?: () => void
@@ -25,7 +27,6 @@ function Review({ initial, id, confidence, cancel }: {
       }
       const record = await api<Invoice>(id ? '/invoices/' + id : '/invoices', json(id ? 'PUT' : 'POST', values))
       navigate('/invoices/' + record.id, { replace: true, state: { saved: true } })
-      if (id) setMatches([])
     } catch (issue) {
       setError((issue as Error).message)
     } finally {
@@ -53,7 +54,7 @@ function Review({ initial, id, confidence, cancel }: {
         {label}
         {confidence?.[key] && confidence[key] !== 'matched' &&
           <small>{confidence[key] === 'missing' ? ' · Missing' : ' · Review OCR'}</small>}
-        <input type={type} value={values[key] ?? ''} step={type === 'number' ? '0.01' : undefined}
+        <input disabled={busy} type={type} value={values[key] ?? ''} step={type === 'number' ? '0.01' : undefined}
           min={type === 'number' ? 0 : undefined} pattern={key === 'currency' ? '[A-Za-z]{3}' : undefined}
           maxLength={key === 'currency' ? 3 : key === 'vendor' ? 160 : key === 'number' ? 80 : undefined}
           required={['vendor', 'number', 'invoice_date', 'currency', 'total'].includes(key)}
@@ -138,19 +139,12 @@ export function Upload() {
 
 export function Details() {
   const { id } = useParams()
-  const [state, setState] = useState<{ invoice?: Invoice; error?: string }>({})
-  useEffect(() => {
-    let active = true
-    setState({})
-    api<Invoice>('/invoices/' + id).then(invoice => { if (active) setState({ invoice }) },
-      error => { if (active) setState({ error: error.message }) })
-    return () => { active = false }
-  }, [id])
+  const { data: invoice, error } = useData<Invoice>('/invoices/' + id)
   return <>
     <Link to="/invoices">← All invoices</Link>
-    <h1>{state.invoice ? state.invoice.vendor : 'Invoice record'}</h1>
-    {state.error && <p role="alert" className="error">{state.error}</p>}
-    {!state.error && !state.invoice && <p role="status">Loading invoice…</p>}
-    {state.invoice && <Review key={state.invoice.id} id={state.invoice.id} initial={state.invoice} />}
+    <h1>{invoice ? invoice.vendor : 'Invoice record'}</h1>
+    {error && <p role="alert" className="error">{error}</p>}
+    {!error && !invoice && <p role="status">Loading invoice…</p>}
+    {invoice && <Review key={invoice.id} id={invoice.id} initial={invoice} />}
   </>
 }
