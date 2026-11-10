@@ -16,12 +16,22 @@ test('review, save, search, warn, edit, and delete', async ({ page }) => {
     await expect(page.getByLabel('Vendor', { exact: true })).toHaveValue('Juniper Studio')
   }
   await upload()
+  if (process.env.INVOICEIQ_CAPTURE === '1') {
+    await page.setViewportSize({ width: 1440, height: 960 })
+    await page.screenshot({ path: '../screenshots/invoice-review.png', fullPage: true })
+    await page.setViewportSize({ width: 390, height: 844 })
+  }
   await page.getByLabel('Grand total').fill('130.25')
   await page.getByRole('button', { name: 'Save invoice' }).click()
   await expect(page.getByText('Invoice saved.')).toBeVisible()
 
   await page.getByRole('link', { name: 'Overview', exact: true }).click()
   await expect(page.getByText('130.25', { exact: true })).toBeVisible()
+  if (process.env.INVOICEIQ_CAPTURE === '1') {
+    await page.setViewportSize({ width: 1440, height: 960 })
+    await page.screenshot({ path: '../screenshots/dashboard.png', fullPage: true })
+    await page.setViewportSize({ width: 390, height: 844 })
+  }
   await upload()
   await page.getByRole('button', { name: 'Save invoice' }).click()
   await expect(page.getByText('Potential duplicates')).toBeVisible()

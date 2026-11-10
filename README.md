@@ -49,3 +49,11 @@ The current application is intended for local use. Source documents are processe
 ## License
 
 InvoiceIQ uses the GNU Affero General Public License v3. See [LICENSE](LICENSE).
+
+## Demo screenshots
+
+![Dashboard with a fictional invoice](screenshots/dashboard.png)
+
+![Invoice review with extracted fields](screenshots/invoice-review.png)
+
+See the [API reference](docs/API.md), [testing instructions](docs/TESTING.md), [deployment preparation](docs/DEPLOYMENT.md), and [LinkedIn showcase draft](LINKEDIN_SHOWCASE.md).
